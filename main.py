@@ -81,9 +81,14 @@ def read_watcher(id: int, db: Session = Depends(get_db)):
     return watcher
 
 
-@app.put('/watchers/{id}')
-def edit_watcher(id: int):
-    pass
+@app.put('/watchers/{id}', response_model=WatcherRead)
+def edit_watcher(id: int, data: WatcherCreate, db: Session = Depends(get_db)):
+    watcher = check_watcher(id, db)
+    for k, v in data.model_dump().items():
+        setattr(watcher, k, v)
+    db.commit()
+    db.refresh(watcher)
+    return watcher
 
 
 @app.delete('/watchers/{id}', status_code=204)
